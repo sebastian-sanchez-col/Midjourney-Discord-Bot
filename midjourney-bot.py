@@ -7,6 +7,9 @@ from queue import Queue
 import threading
 import re
 import asyncio
+import os
+import uuid
+from datetime import datetime
 
 TOKEN = #DEIN_DISCORD_BOT_TOKEN_HIER_EINFÜGEN
 CHANNEL_ID = #DEINE_DISCORD_KANAL_ID_HIER_EINFÜGEN
@@ -63,6 +66,20 @@ class ImageWindow:
 
             r = requests.get(url, timeout=30)
             r.raise_for_status()
+
+            if not os.path.exists("images"):
+                os.makedirs("images")
+            
+            unique_id = uuid.uuid4().hex[:8]
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            
+            filename = f"{timestamp}_{unique_id}.png"
+            filepath = os.path.join("images", filename)
+
+            with open(filepath, "wb") as f:
+                f.write(r.content)
+            print(f"Bild gespeichert in: {filepath}")
+
             img_data = BytesIO(r.content)
             pil_image = Image.open(img_data)
             pil_image.thumbnail((800, 800))
